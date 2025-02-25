@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload CVs</title>
+    <style>
+        .box {
+            border: 2px solid #333;
+            padding: 20px;
+            margin: 20px auto;
+            width: 50%;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        h1 {
+            text-align: center;
+        }
+        .message {
+            color: green;
+            text-align: center;
+        }
+        .error {
+            color: red;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h1>Upload CVs</h1>
+        <form method="post" enctype="multipart/form-data" id="upload-form">
+            {% csrf_token %}
+            <input type="file" name="cv_files" multiple accept=".pdf,.docx">
+            <button type="submit">Upload</button>
+        </form>
+        <div id="message"></div>
+    </div>
+
+    <script>
+        document.getElementById('upload-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+            const response = await fetch('/upload/', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await response.json();
+            const messageDiv = document.getElementById('message');
+            if (data.message.includes('successfully')) {
+                messageDiv.className = 'message';
+            } else {
+                messageDiv.className = 'error';
+            }
+            messageDiv.innerText = data.message;
+        });
+    </script>
+</body>
+</html>

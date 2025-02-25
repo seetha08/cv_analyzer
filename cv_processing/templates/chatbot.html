@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chatbot</title>
+    <style>
+        .box {
+            border: 2px solid #333;
+            padding: 20px;
+            margin: 20px auto;
+            width: 50%;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        h1 {
+            text-align: center;
+        }
+        #response {
+            margin-top: 10px;
+            padding: 10px;
+            border-top: 1px solid #ccc;
+        }
+        .error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h1>CV Query Chatbot</h1>
+        <form id="chat-form" method="post">
+            {% csrf_token %}
+            <input type="text" name="query" id="query" placeholder="Enter your query">
+            <button type="submit">Ask</button>
+        </form>
+        <div id="response"></div>
+    </div>
+
+    <script>
+        document.getElementById('chat-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const query = document.getElementById('query').value;
+            const response = await fetch('/chatbot/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                },
+                body: `query=${encodeURIComponent(query)}`
+            });
+            const data = await response.json();
+            const responseDiv = document.getElementById('response');
+            if (data.response === 'You should upload a CV') {
+                responseDiv.className = 'error';
+            } else {
+                responseDiv.className = '';
+            }
+            responseDiv.innerText = data.response;
+        });
+    </script>
+</body>
+</html>
